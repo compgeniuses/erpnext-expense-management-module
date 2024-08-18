@@ -44,6 +44,7 @@ def create_journal_entries(report):
         for item in expense:
             expense_total += item.subtotal
 
+        cost_center = frappe.db.get_value('Company', expense_report.company, 'cost_center')
         # Create the journal entries
         jv = frappe.new_doc('Journal Entry')
         jv.voucher_type = 'Journal Entry'
@@ -59,6 +60,7 @@ def create_journal_entries(report):
             'debit': float(0),
             'debit_in_account_currency': float(0),
             'credit_in_account_currency': float(expense_total),
+            'cost_center': cost_center
         })
 
         # Entry to the Debit Side for each expense category
@@ -90,7 +92,8 @@ def create_journal_entries(report):
                 'debit': float(amount_less_tax),
                 'credit': float(0),
                 'credit_in_account_currency': float(0),
-                'debit_in_account_currency': float(amount_less_tax)
+                'debit_in_account_currency': float(amount_less_tax),
+                'cost_center': cost_center
             })
 
         # Entry to the tax accounts
@@ -100,7 +103,8 @@ def create_journal_entries(report):
                 'debit': float(tax_amount),
                 'credit': float(0),
                 'credit_in_account_currency': float(0),
-                'debit_in_account_currency': float(tax_amount)
+                'debit_in_account_currency': float(tax_amount),
+                'cost_center': cost_center
             })
 
         jv.save()
